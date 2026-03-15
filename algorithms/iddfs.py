@@ -1,38 +1,37 @@
 from core.moves import get_valid_moves, apply_move
 
-def dls(state, depth, visited):
+
+def dls(state, depth, nodes):
+
+    nodes[0] += 1
 
     if state.is_goal():
         return state
 
-    if depth == 0:
+    if depth <= 0:
         return None
-
-    visited.add(state)
 
     for move in get_valid_moves(state):
 
         child = apply_move(state, move)
 
-        if child not in visited:
+        result = dls(child, depth - 1, nodes)
 
-            result = dls(child, depth-1, visited)
-
-            if result:
-                return result
+        if result:
+            return result
 
     return None
 
 
-def iddfs(start, max_depth=50):
+def iddfs(start, max_depth=100000):
 
-    for depth in range(max_depth):
+    for depth in range(1, max_depth + 1):
 
-        visited = set()
+        nodes = [0]
 
-        result = dls(start, depth, visited)
+        result = dls(start, depth, nodes)
 
-        if result:
-            return result, len(visited)
+        if result is not None:
+            return result, nodes[0]
 
-    return None, 0
+    return None, nodes[0]

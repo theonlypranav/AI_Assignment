@@ -3,34 +3,35 @@ from core.moves import get_valid_moves, apply_move
 
 def astar(start, heuristic):
 
-    frontier=[]
-    counter=0
+    frontier = []
+    counter = 0
 
-    heapq.heappush(frontier,(heuristic(start),0,counter,start))
+    heapq.heappush(frontier, (heuristic(start), 0, counter, start))
 
-    visited=set()
-    nodes=0
+    visited = set([start])
+    nodes = 0
 
     while frontier:
 
-        f,g,_,state=heapq.heappop(frontier)
-        nodes+=1
+        f, g, _, state = heapq.heappop(frontier)
+        nodes += 1
 
         if state.is_goal():
-            return state,nodes
-
-        visited.add(state)
+            return state, nodes
 
         for move in get_valid_moves(state):
 
-            child=apply_move(state,move)
+            child = apply_move(state, move)
 
             if child not in visited:
 
-                g_new=g+1
-                f_new=g_new+heuristic(child)
+                visited.add(child)
 
-                counter+=1
-                heapq.heappush(frontier,(f_new,g_new,counter,child))
+                g_new = g + 1
+                f_new = g_new + heuristic(child)
 
-    return None,nodes
+                counter += 1
+
+                heapq.heappush(frontier, (f_new, g_new, counter, child))
+
+    return None, nodes

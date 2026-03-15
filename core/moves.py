@@ -25,7 +25,14 @@ def get_valid_moves(state):
                 continue
 
             if not pegs[dest] or disk < min(pegs[dest]):
-                moves.append((disk, src, dest))
+
+                move = (disk, src, dest)
+
+                # prevent reversing the previous move
+                if state.move and (disk, dest, src) == state.move:
+                    continue
+
+                moves.append(move)
 
     return moves
 
@@ -37,4 +44,4 @@ def apply_move(state, move):
     new_pegs = list(state.pegs)
     new_pegs[disk] = dest
 
-    return State(new_pegs, state, move, state.g + 1)
+    return State(new_pegs, parent=state, move=move, g=state.g + 1)
