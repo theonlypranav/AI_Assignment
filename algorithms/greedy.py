@@ -29,4 +29,4 @@ def greedy(start, heuristic):
                 counter += 1
                 heapq.heappush(frontier, (heuristic(child), counter, child))
 
-    return None, nodes
+    return None, nodes 

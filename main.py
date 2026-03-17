@@ -8,6 +8,7 @@ from algorithms.bfs import bfs
 from algorithms.iddfs import iddfs
 from algorithms.greedy import greedy
 from algorithms.astar import astar
+from algorithms.idastar import idastar
 
 from heuristics.h1 import h1
 from heuristics.h2 import h2
@@ -53,6 +54,9 @@ def run():
 
     elif algorithm == "astar":
         goal, nodes = astar(start, h)
+
+    elif algorithm == "idastar":
+        goal, nodes = idastar(start, h)
 
     else:
         print("Unknown algorithm")

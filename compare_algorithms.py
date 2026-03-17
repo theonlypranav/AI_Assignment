@@ -1,5 +1,6 @@
 import time
 
+from algorithms import idastar
 from core.state import State
 
 from algorithms.bfs import bfs
