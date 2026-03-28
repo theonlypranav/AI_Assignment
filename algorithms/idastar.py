@@ -1,56 +1,54 @@
 from core.moves import get_valid_moves, apply_move
 
 
-def ida_search(state, g, bound, heuristic, path, nodes):
+def _search(state, g, threshold, heuristic, current_path, counter):
+    """Recursive helper for IDA* — returns (next_threshold, goal_state_or_None)."""
 
-    nodes[0] += 1
-
+    counter[0] += 1
     f = g + heuristic(state)
 
-    if f > bound:
+    if f > threshold:
         return f, None
 
     if state.is_goal():
         return f, state
 
-    minimum = float("inf")
-
-    path.add(state)
+    next_threshold = float("inf")
+    current_path.add(state)
 
     for move in get_valid_moves(state):
-
         child = apply_move(state, move)
 
-        if child not in path:
+        if child in current_path:
+            continue
 
-            temp, result = ida_search(child, g + 1, bound, heuristic, path, nodes)
+        t, found = _search(child, g + 1, threshold, heuristic, current_path, counter)
 
-            if result is not None:
-                return temp, result
+        if found is not None:
+            return t, found
 
-            if temp < minimum:
-                minimum = temp
+        if t < next_threshold:
+            next_threshold = t
 
-    path.remove(state)
-
-    return minimum, None
+    current_path.discard(state)
+    return next_threshold, None
 
 
 def idastar(start, heuristic):
+    """IDA* — iterative deepening version of A*, uses less memory."""
 
-    bound = heuristic(start)
-    nodes = [0]
+    threshold = heuristic(start)
+    total_nodes = [0]
 
     while True:
-
         path = set()
+        t, goal = _search(start, 0, threshold, heuristic, path, total_nodes)
 
-        temp, result = ida_search(start, 0, bound, heuristic, path, nodes)
+        if goal is not None:
+            return goal, total_nodes[0]
 
-        if result is not None:
-            return result, nodes[0]
+        # no more states to explore
+        if t == float("inf"):
+            return None, total_nodes[0]
 
-        if temp == float("inf"):
-            return None, nodes[0]
-
-        bound = temp
+        threshold = t

@@ -20,61 +20,71 @@ def run():
 
     if len(sys.argv) < 4:
         print("Usage: python main.py <algorithm> <heuristic> <disks/easy/medium/hard>")
+        print("  Algorithms: bfs, iddfs, greedy, astar, idastar")
+        print("  Heuristics: h1, h2")
         return
 
-    algorithm = sys.argv[1]
-    heuristic = sys.argv[2]
-    case = sys.argv[3]
+    algo_name = sys.argv[1].lower()
+    heur_name = sys.argv[2].lower()
+    case_arg = sys.argv[3]
 
-    # determine number of disks
-    if case in CASES:
-        disks = CASES[case]
+    # figure out number of disks
+    if case_arg in CASES:
+        num_disks = CASES[case_arg]
     else:
-        disks = int(case)
+        try:
+            num_disks = int(case_arg)
+        except ValueError:
+            print(f"Invalid case: {case_arg}")
+            return
 
-    start = State(['A'] * disks)
+    initial = State(['A'] * num_disks)
 
-    # choose heuristic
-    if heuristic == "h1":
+    # pick heuristic
+    if heur_name == "h1":
         h = h1
-    else:
+    elif heur_name == "h2":
         h = h2
-
-    start_time = time.time()
-
-    # choose algorithm
-    if algorithm == "bfs":
-        goal, nodes = bfs(start)
-
-    elif algorithm == "iddfs":
-        goal, nodes = iddfs(start)
-
-    elif algorithm == "greedy":
-        goal, nodes = greedy(start, h)
-
-    elif algorithm == "astar":
-        goal, nodes = astar(start, h)
-
-    elif algorithm == "idastar":
-        goal, nodes = idastar(start, h)
-
     else:
-        print("Unknown algorithm")
+        print(f"Unknown heuristic: {heur_name}")
         return
 
-    end_time = time.time()
+    t_start = time.time()
 
-    print("\nAlgorithm:", algorithm)
-    print("Heuristic:", heuristic)
-    print("Disks:", disks)
+    # run the chosen algorithm
+    if algo_name == "bfs":
+        goal, nodes = bfs(initial)
 
-    print("\nNodes Expanded:", nodes)
-    print("Time:", round(end_time - start_time, 5), "seconds")
-    print("Moves:", goal.g)
+    elif algo_name == "iddfs":
+        goal, nodes = iddfs(initial)
 
-    print("\nSolution Steps:\n")
+    elif algo_name == "greedy":
+        goal, nodes = greedy(initial, h)
 
-    show_solution(goal)
+    elif algo_name == "astar":
+        goal, nodes = astar(initial, h)
+
+    elif algo_name == "idastar":
+        goal, nodes = idastar(initial, h)
+
+    else:
+        print(f"Unknown algorithm: {algo_name}")
+        return
+
+    elapsed = time.time() - t_start
+
+    print(f"\nAlgorithm: {algo_name}")
+    print(f"Heuristic: {heur_name}")
+    print(f"Disks: {num_disks}")
+    print(f"\nNodes Expanded: {nodes}")
+    print(f"Time: {round(elapsed, 5)} seconds")
+
+    if goal is not None:
+        print(f"Moves: {goal.g}")
+        print("\nSolution Steps:\n")
+        show_solution(goal)
+    else:
+        print("No solution found.")
 
 
 if __name__ == "__main__":

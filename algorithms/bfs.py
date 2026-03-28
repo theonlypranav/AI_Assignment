@@ -1,27 +1,29 @@
 from collections import deque
 from core.moves import get_valid_moves, apply_move
 
+
 def bfs(start):
+    """Breadth-first search — guarantees shortest path (fewest moves)."""
 
-    frontier = deque([start])
-    visited = set([start])
+    queue = deque()
+    queue.append(start)
+    explored = {start}
 
-    nodes = 0
+    nodes_checked = 0
 
-    while frontier:
+    while queue:
+        current = queue.popleft()
+        nodes_checked += 1
 
-        state = frontier.popleft()
-        nodes += 1
+        if current.is_goal():
+            return current, nodes_checked
 
-        if state.is_goal():
-            return state, nodes
+        for move in get_valid_moves(current):
+            neighbor = apply_move(current, move)
 
-        for move in get_valid_moves(state):
+            if neighbor not in explored:
+                explored.add(neighbor)
+                queue.append(neighbor)
 
-            child = apply_move(state, move)
-
-            if child not in visited:
-                visited.add(child)
-                frontier.append(child)
-
-    return None, nodes
+    # no solution found
+    return None, nodes_checked

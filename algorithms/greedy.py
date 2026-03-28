@@ -1,32 +1,35 @@
 import heapq
 from core.moves import get_valid_moves, apply_move
 
+
 def greedy(start, heuristic):
+    """
+    Greedy best-first search — expands the node with lowest h(n).
+    NOTE: this does NOT guarantee an optimal solution since it ignores path cost.
+    """
 
-    frontier = []
-    counter = 0
+    pq = []
+    seq = 0  # tie-breaking counter
 
-    heapq.heappush(frontier, (heuristic(start), counter, start))
+    heapq.heappush(pq, (heuristic(start), seq, start))
 
-    visited = set([start])
-    nodes = 0
+    seen = set()
+    seen.add(start)
+    expansions = 0
 
-    while frontier:
+    while pq:
+        h_val, _, node = heapq.heappop(pq)
+        expansions += 1
 
-        _, _, state = heapq.heappop(frontier)
-        nodes += 1
+        if node.is_goal():
+            return node, expansions
 
-        if state.is_goal():
-            return state, nodes
+        for move in get_valid_moves(node):
+            child = apply_move(node, move)
 
-        for move in get_valid_moves(state):
+            if child not in seen:
+                seen.add(child)
+                seq += 1
+                heapq.heappush(pq, (heuristic(child), seq, child))
 
-            child = apply_move(state, move)
-
-            if child not in visited:
-
-                visited.add(child)
-                counter += 1
-                heapq.heappush(frontier, (heuristic(child), counter, child))
-
-    return None, nodes 
+    return None, expansions

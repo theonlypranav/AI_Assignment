@@ -1,37 +1,41 @@
 import heapq
 from core.moves import get_valid_moves, apply_move
 
+
 def astar(start, heuristic):
+    """A* search — uses f(n) = g(n) + h(n) to pick the next state."""
 
-    frontier = []
-    counter = 0
+    open_list = []
+    tie_breaker = 0
 
-    heapq.heappush(frontier, (heuristic(start), 0, counter, start))
+    h_val = heuristic(start)
+    heapq.heappush(open_list, (h_val, 0, tie_breaker, start))
 
-    visited = set([start])
-    nodes = 0
+    # track best known g-cost for each state
+    best_g = {start: 0}
+    expanded = 0
 
-    while frontier:
+    while open_list:
+        f, g, _, state = heapq.heappop(open_list)
 
-        f, g, _, state = heapq.heappop(frontier)
-        nodes += 1
+        # if we already found a cheaper way to this state, skip it
+        if g > best_g.get(state, float('inf')):
+            continue
+
+        expanded += 1
 
         if state.is_goal():
-            return state, nodes
+            return state, expanded
 
         for move in get_valid_moves(state):
-
             child = apply_move(state, move)
+            new_g = g + 1
 
-            if child not in visited:
+            # only explore if this path is cheaper than any we've seen
+            if new_g < best_g.get(child, float('inf')):
+                best_g[child] = new_g
+                f_val = new_g + heuristic(child)
+                tie_breaker += 1
+                heapq.heappush(open_list, (f_val, new_g, tie_breaker, child))
 
-                visited.add(child)
-
-                g_new = g + 1
-                f_new = g_new + heuristic(child)
-
-                counter += 1
-
-                heapq.heappush(frontier, (f_new, g_new, counter, child))
-
-    return None, nodes
+    return None, expanded
